@@ -1,0 +1,55 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}Invoice #{{ bill.id }}{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3">
+        <div>
+            <h1 class="mb-1">Invoice #{{ bill.id }}</h1>
+            <p class="text-muted">A polished invoice view for the selected sales bill.</p>
+        </div>
+        <a class="btn btn-outline-secondary" href="{% url 'inventory:bill_list' %}">Back to bills</a>
+    </div>
+</div>
+<div class="invoice-box">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h5 class="mb-3">Billing Details</h5>
+            <dl class="row mb-0">
+                <dt class="col-5">Date</dt>
+                <dd class="col-7">{{ bill.date }}</dd>
+                <dt class="col-5">Customer</dt>
+                <dd class="col-7">{{ bill.customer.name }}</dd>
+                <dt class="col-5">Location</dt>
+                <dd class="col-7">{{ bill.customer.location }}</dd>
+                <dt class="col-5">Phone</dt>
+                <dd class="col-7">{{ bill.customer.phone_no }}</dd>
+                <dt class="col-5">GST</dt>
+                <dd class="col-7">{{ bill.customer.gst }}</dd>
+            </dl>
+        </div>
+        <div class="col-md-6">
+            <h5 class="mb-3">Invoice Summary</h5>
+            <dl class="row invoice-summary">
+                <dt class="col-6">Product</dt>
+                <dd class="col-6 text-end">{{ bill.product.name }}</dd>
+                <dt class="col-6">Quantity</dt>
+                <dd class="col-6 text-end">{{ bill.quantity }}</dd>
+                <dt class="col-6">Rate</dt>
+                <dd class="col-6 text-end">{{ bill.rate }}</dd>
+                <dt class="col-6">Total Amount</dt>
+                <dd class="col-6 text-end">{{ bill.total_amount }}</dd>
+                <dt class="col-6">Amount Paid</dt>
+                <dd class="col-6 text-end">{{ bill.amount_paid }}</dd>
+                <dt class="col-6">Balance Due</dt>
+                <dd class="col-6 text-end">{{ bill.amount_due }}</dd>
+            </dl>
+        </div>
+    </div>
+    <div class="mt-4">
+        <h6 class="mb-2">Amount Chargeable (in words)</h6>
+        <p class="mb-0">{{ amount_in_words }}</p>
+    </div>
+</div>
+{% endblock %}

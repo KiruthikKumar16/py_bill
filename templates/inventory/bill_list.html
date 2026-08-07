@@ -1,0 +1,46 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}Bills{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div>
+        <h1 class="mb-1">Bills</h1>
+        <p class="text-muted mb-0">Create invoices and review billing history for wholesale transactions.</p>
+    </div>
+    <a class="btn btn-warning" href="{% url 'inventory:bill_create' %}">+ Create Bill</a>
+</div>
+<div class="card card-body p-0 overflow-hidden">
+    <table class="table table-hover align-middle mb-0">
+    <thead class="table-light">
+        <tr>
+            <th>Bill</th>
+            <th>Date</th>
+            <th>Customer</th>
+            <th>Product</th>
+            <th>Qty</th>
+            <th>Rate</th>
+            <th>Total</th>
+            <th>Balance</th>
+            <th>Invoice</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for bill in bills %}
+            <tr>
+                <td>#{{ bill.id }}</td>
+                <td>{{ bill.date }}</td>
+                <td>{{ bill.customer.name }}</td>
+                <td>{{ bill.product.name }}</td>
+                <td>{{ bill.quantity }}</td>
+                <td>{{ bill.rate }}</td>
+                <td>{{ bill.total_amount }}</td>
+                <td>{{ bill.amount_due }}</td>
+                <td><a class="btn btn-sm btn-outline-info" href="{% url 'inventory:bill_invoice' bill.pk %}">Invoice</a></td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="9" class="text-center py-4">No bills found.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
