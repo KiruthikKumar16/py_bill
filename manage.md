@@ -2,7 +2,7 @@
 
 `manage.py` is the command-line entry point for the Django project.
 
-## Overview 
+## Overview
 
 This module configures the environment for Django and executes management commands that control the project.
 It is executed directly when the developer runs `python manage.py <command>`.

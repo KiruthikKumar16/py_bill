@@ -7,7 +7,7 @@ from django.urls import reverse
 
 from .forms import BillForm, CustomerForm, PaymentForm, ProductForm, PurchaseForm
 from .models import Bill, Customer, Payment, Product, Purchase
-from invoice import number_to_words
+from invoice import number_to_words, build_invoice_text
 
 
 def dashboard(request):
@@ -149,12 +149,30 @@ def bill_create(request):
 
 def bill_invoice(request, pk):
     bill = get_object_or_404(Bill, pk=pk)
+    # prepare simple dicts for the invoice helper
+    bill_dict = {
+        "Bill_ID": bill.id,
+        "Date": bill.date.strftime("%d-%m-%Y") if hasattr(bill, "date") else str(bill.date),
+        "Quantity": float(bill.quantity),
+        "Rate": float(bill.rate),
+    }
+    customer_dict = {
+        "Name": bill.customer.name,
+        "Location": bill.customer.location,
+        "Phone_No": bill.customer.phone_no,
+        "GST": bill.customer.gst,
+    }
+    product_dict = {"Name": bill.product.name}
+
+    invoice_text = build_invoice_text(bill_dict, customer_dict, product_dict, float(bill.amount_due))
+
     return render(
         request,
         "inventory/invoice.html",
         {
             "bill": bill,
             "amount_in_words": number_to_words(float(bill.total_amount)),
+            "invoice_text": invoice_text,
         },
     )
 
