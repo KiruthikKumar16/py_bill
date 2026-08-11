@@ -4,7 +4,6 @@
 
 ## Overview
 
-
 This module imports `tkinter`, `messagebox`, and `ttk` from the standard library.
 It creates a `WarehouseApp` class that builds the main window, tabs, controls, and event handlers.
 

@@ -51,5 +51,11 @@
         <h6 class="mb-2">Amount Chargeable (in words)</h6>
         <p class="mb-0">{{ amount_in_words }}</p>
     </div>
+    {% if invoice_text %}
+    <div class="mt-4">
+        <h6 class="mb-2">Printable Invoice (plain text)</h6>
+        <pre class="invoice-text p-3 bg-light rounded">{{ invoice_text }}</pre>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

@@ -1,12 +1,52 @@
+:root {
+    color-scheme: light;
+    --bg-color: #f6f8fb;
+    --bg-gradient: radial-gradient(circle at top left, #f5f8ff 0%, #eef3fb 42%, #f6f8fb 100%);
+    --surface-color: #ffffff;
+    --surface-muted: #f8f9ff;
+    --text-color: #212529;
+    --text-muted: #6c757d;
+    --border-color: #e9ecef;
+    --shadow-color: rgba(15, 23, 42, 0.08);
+    --hero-bg: linear-gradient(135deg, rgba(13, 110, 253, 0.12), rgba(255, 255, 255, 1));
+    --hero-border: rgba(13, 110, 253, 0.16);
+    --navbar-bg: #0d6efd;
+    --navbar-border: rgba(255, 255, 255, 0.18);
+    --table-hover-bg: rgba(13, 110, 253, 0.06);
+    --table-striped-bg: rgba(13, 110, 253, 0.04);
+    --btn-shadow: rgba(13, 110, 253, 0.12);
+}
+
+body[data-theme="dark"] {
+    color-scheme: dark;
+    --bg-color: #0f172a;
+    --bg-gradient: radial-gradient(circle at top left, #1e293b 0%, #111827 42%, #0f172a 100%);
+    --surface-color: #111827;
+    --surface-muted: #1f2937;
+    --text-color: #f8fafc;
+    --text-muted: #9ca3af;
+    --border-color: #334155;
+    --shadow-color: rgba(2, 6, 23, 0.55);
+    --hero-bg: linear-gradient(135deg, rgba(37, 99, 235, 0.28), rgba(17, 24, 39, 0.95));
+    --hero-border: rgba(96, 165, 250, 0.24);
+    --navbar-bg: #111827;
+    --navbar-border: rgba(255, 255, 255, 0.12);
+    --table-hover-bg: rgba(59, 130, 246, 0.16);
+    --table-striped-bg: rgba(59, 130, 246, 0.12);
+    --btn-shadow: rgba(59, 130, 246, 0.25);
+}
+
 body {
     min-height: 100vh;
-    background: radial-gradient(circle at top left, #f5f8ff 0%, #eef3fb 42%, #f6f8fb 100%);
-    color: #212529;
+    background: var(--bg-gradient);
+    color: var(--text-color);
     font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 .navbar {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+    background-color: var(--navbar-bg) !important;
+    border-bottom: 1px solid var(--navbar-border);
 }
 
 .navbar-brand {
@@ -24,6 +64,10 @@ body {
     color: #ffffff;
 }
 
+.theme-toggle {
+    min-width: 92px;
+}
+
 .dashboard-shell {
     max-width: 1280px;
     margin: 0 auto;
@@ -32,8 +76,8 @@ body {
 
 .dashboard-hero {
     border-radius: 1.75rem;
-    background: linear-gradient(135deg, rgba(13, 110, 253, 0.12), rgba(255, 255, 255, 1));
-    border: 1px solid rgba(13, 110, 253, 0.16);
+    background: var(--hero-bg);
+    border: 1px solid var(--hero-border);
 }
 
 .dashboard-hero .card-body {
@@ -47,7 +91,7 @@ body {
 }
 
 .dashboard-hero .hero-copy p {
-    color: #6c757d;
+    color: var(--text-muted);
     line-height: 1.7;
 }
 
@@ -65,7 +109,7 @@ body {
 
 .dashboard-hero .action-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 24px 50px rgba(15, 23, 42, 0.14);
+    box-shadow: 0 24px 50px var(--shadow-color);
 }
 
 .dashboard-hero .action-card i {
@@ -82,8 +126,9 @@ body {
 .card form {
     border: none;
     border-radius: 1.25rem;
-    box-shadow: 0 25px 55px rgba(15, 23, 42, 0.08);
-    background-color: #ffffff;
+    box-shadow: 0 25px 55px var(--shadow-color);
+    background-color: var(--surface-color);
+    color: var(--text-color);
 }
 
 .card .card-header {
@@ -118,7 +163,7 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+    box-shadow: 0 18px 40px var(--shadow-color);
     font-size: 1.15rem;
 }
 
@@ -128,7 +173,7 @@ body {
 
 .stat-card .stat-label,
 .summary-card .stat-label {
-    color: #6c757d;
+    color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.08em;
     font-size: 0.78rem;
@@ -143,7 +188,7 @@ body {
 .summary-card .summary-list {
     border-radius: 1.25rem;
     overflow: hidden;
-    background-color: #f8f9ff;
+    background-color: var(--surface-muted);
 }
 
 .summary-card .summary-item {
@@ -165,7 +210,7 @@ body {
 }
 
 .card .text-muted {
-    color: #6c757d !important;
+    color: var(--text-muted) !important;
 }
 
 .table-responsive {
@@ -175,26 +220,47 @@ body {
 
 .table {
     margin-bottom: 0;
+    color: var(--text-color);
+    background-color: var(--surface-color);
+}
+
+.table > :not(caption) > * > * {
+    background-color: transparent;
+    color: var(--text-color);
+    border-color: var(--border-color);
 }
 
 .table thead th {
-    border-bottom: 1px solid #e9ecef;
-    color: #6c757d;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-muted);
     letter-spacing: 0.05em;
     text-transform: uppercase;
     font-size: 0.8rem;
+    background-color: var(--surface-muted);
+}
+
+.table-light,
+.table-light > th,
+.table-light > td,
+.table-light > tbody > tr > * {
+    background-color: var(--surface-muted) !important;
+    color: var(--text-color) !important;
 }
 
 .table tbody tr {
-    border-bottom: 1px solid #f1f3f5;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .table tbody tr:last-child {
     border-bottom: none;
 }
 
-.table-hover tbody tr:hover {
-    background-color: rgba(13, 110, 253, 0.06);
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+    background-color: var(--table-striped-bg);
+}
+
+.table-hover tbody tr:hover > * {
+    background-color: var(--table-hover-bg);
 }
 
 .table td,
@@ -206,14 +272,25 @@ body {
     border: none;
     padding-left: 0;
     padding-right: 0;
+    background-color: transparent;
+    color: var(--text-color);
 }
 
 .list-group-item h6 {
     margin-bottom: 0.25rem;
 }
 
-.list-group-item small {
-    color: #6c757d;
+.list-group-item small,
+.list-group-item .text-muted {
+    color: var(--text-muted) !important;
+}
+
+.link-secondary {
+    color: var(--text-muted) !important;
+}
+
+.link-secondary:hover {
+    color: var(--text-color) !important;
 }
 
 .badge-pill {
@@ -237,12 +314,21 @@ body {
 .btn-success,
 .btn-warning,
 .btn-info {
-    box-shadow: 0 12px 30px rgba(13, 110, 253, 0.12);
+    box-shadow: 0 12px 30px var(--btn-shadow);
+}
+
+.form-control,
+.form-select,
+.form-control:focus,
+.form-select:focus {
+    background-color: var(--surface-color);
+    color: var(--text-color);
+    border-color: var(--border-color);
 }
 
 .footer-note {
     font-size: 0.92rem;
-    color: #6c757d;
+    color: var(--text-muted);
 }
 
 .chart-card {
