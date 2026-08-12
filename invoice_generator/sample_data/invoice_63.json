@@ -1,0 +1,24 @@
+{
+  "invoice_no": "63",
+  "date": "25-5-2022",
+  "vehicle_no": "",
+  "place_of_supply": "",
+  "bill_type": "CREDIT",
+  "buyer": {
+    "name": "S.K.A.PRASANNA TRADING COMPANY",
+    "address_lines": ["THENI"],
+    "phone": "9443052770",
+    "state_name": "Tamil Nadu",
+    "state_code": "33",
+    "gstin": "33ADTFS0016J1Z1"
+  },
+  "items": [
+    {
+      "description": "THUVARAM PARUPPU",
+      "hsn_code": "",
+      "qty": 250.00,
+      "unit": "KG",
+      "rate": 102.26
+    }
+  ]
+}

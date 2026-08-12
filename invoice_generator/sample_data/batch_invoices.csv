@@ -1,0 +1,4 @@
+invoice_no,date,vehicle_no,place_of_supply,bill_type,buyer_name,buyer_address,buyer_phone,buyer_state_name,buyer_state_code,buyer_gstin,description,hsn_code,qty,unit,rate
+64,26-5-2022,TN-69-AB-1234,Tuticorin,CASH,SRI MURUGAN STORES,MADURAI,9840011122,Tamil Nadu,33,33ABCDE1234F1Z5,THUVARAM PARUPPU,7105,100,KG,105.50
+64,26-5-2022,TN-69-AB-1234,Tuticorin,CASH,SRI MURUGAN STORES,MADURAI,9840011122,Tamil Nadu,33,33ABCDE1234F1Z5,URAD DHAL,7104,50,KG,98.00
+65,27-5-2022,,Tuticorin,CREDIT,LAKSHMI TRADERS,"12 Main Road|Sivakasi",9876543210,Tamil Nadu,33,33XYZAB5678C1Z9,PACHA PAYARU,7106,75,KG,110.75

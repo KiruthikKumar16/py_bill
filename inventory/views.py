@@ -1,63 +1,82 @@
-import json
+﻿import json
 from decimal import Decimal
+from pathlib import Path
 
 from django.db.models import Sum
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
 from .forms import BillForm, CustomerForm, PaymentForm, ProductForm, PurchaseForm
 from .models import Bill, Customer, Payment, Product, Purchase
-from invoice import number_to_words, build_invoice_text
+from invoice import number_to_words
 
 
 def dashboard(request):
+    customers = Customer.objects.all()
     products = Product.objects.all()
-    bills = Bill.objects.select_related("customer", "product").order_by("-date", "-id")
+    recent_bills = Bill.objects.select_related("customer", "product").order_by("-id")[:5]
+
+    customer_count = customers.count()
+    product_count = products.count()
+    purchase_count = Purchase.objects.count()
+    payment_count = Payment.objects.count()
+
+    total_revenue = sum((bill.total_amount for bill in Bill.objects.all()), Decimal("0.00"))
+    total_due = sum((bill.amount_due for bill in Bill.objects.all()), Decimal("0.00"))
+    inventory_value = sum(
+        (product.purchase_rate * product.quantity for product in products),
+        Decimal("0.00"),
+    )
 
     daily_sales = {}
-    customer_totals = {}
-    for bill in reversed(list(bills)):
-        label = bill.date.strftime("%b %d")
+    for bill in Bill.objects.select_related("customer", "product").order_by("date"):
+        label = bill.date.strftime("%d %b")
         daily_sales[label] = daily_sales.get(label, Decimal("0.00")) + bill.total_amount
-        customer_totals[bill.customer.name] = customer_totals.get(bill.customer.name, Decimal("0.00")) + bill.total_amount
 
-    total_revenue = sum(b.total_amount for b in bills)
-    total_due = sum(b.amount_due for b in bills)
-    inventory_value = sum(p.quantity * p.sale_rate for p in products)
-    top_products = products.order_by("-quantity")[:5]
+    sales_labels = list(daily_sales.keys())
+    sales_values = [float(value) for value in daily_sales.values()]
+
+    customer_totals = {}
+    for bill in Bill.objects.select_related("customer"):
+        customer_totals[bill.customer.name] = (
+            customer_totals.get(bill.customer.name, Decimal("0.00")) + bill.total_amount
+        )
     top_customers = sorted(customer_totals.items(), key=lambda item: item[1], reverse=True)[:5]
-    recent_bills = bills[:5]
+
+    stock_entries = Product.objects.order_by("-quantity")[:5]
+    stock_labels = [product.name for product in stock_entries]
+    stock_values = [product.quantity for product in stock_entries]
 
     return render(
         request,
         "inventory/dashboard.html",
         {
-            "customer_count": Customer.objects.count(),
-            "product_count": products.count(),
-            "purchase_count": Purchase.objects.count(),
-            "bill_count": bills.count(),
-            "payment_count": Payment.objects.count(),
+            "customer_count": customer_count,
+            "product_count": product_count,
             "total_revenue": total_revenue,
-            "inventory_value": inventory_value,
             "total_due": total_due,
-            "top_products": top_products,
-            "top_customers": top_customers,
+            "inventory_value": inventory_value,
             "recent_bills": recent_bills,
-            "daily_sales_labels": json.dumps(list(daily_sales.keys())),
-            "daily_sales_values": json.dumps([float(value) for value in daily_sales.values()]),
-            "stock_labels": json.dumps([p.name for p in top_products]),
-            "stock_values": json.dumps([p.quantity for p in top_products]),
+            "purchase_count": purchase_count,
+            "payment_count": payment_count,
+            "daily_sales_labels": json.dumps(sales_labels),
+            "daily_sales_values": json.dumps(sales_values),
+            "top_customers": top_customers,
+            "stock_labels": json.dumps(stock_labels),
+            "stock_values": json.dumps(stock_values),
         },
     )
 
 
 def customer_list(request):
-    return render(request, "inventory/customer_list.html", {"customers": Customer.objects.all()})
+    customers = Customer.objects.all()
+    return render(request, "inventory/customer_list.html", {"customers": customers})
 
 
 def customer_create(request):
     form = CustomerForm(request.POST or None)
-    if form.is_valid():
+    if request.method == "POST" and form.is_valid():
         form.save()
         return redirect(reverse("inventory:customer_list"))
     return render(request, "inventory/customer_form.html", {"form": form, "title": "Add Customer"})
@@ -66,7 +85,7 @@ def customer_create(request):
 def customer_update(request, pk):
     customer = get_object_or_404(Customer, pk=pk)
     form = CustomerForm(request.POST or None, instance=customer)
-    if form.is_valid():
+    if request.method == "POST" and form.is_valid():
         form.save()
         return redirect(reverse("inventory:customer_list"))
     return render(request, "inventory/customer_form.html", {"form": form, "title": "Edit Customer"})
@@ -77,16 +96,17 @@ def customer_delete(request, pk):
     if request.method == "POST":
         customer.delete()
         return redirect(reverse("inventory:customer_list"))
-    return render(request, "inventory/customer_confirm_delete.html", {"customer": customer})
+    return render(request, "inventory/customer_confirm_delete.html", {"customer": customer, "title": "Delete Customer"})
 
 
 def product_list(request):
-    return render(request, "inventory/product_list.html", {"products": Product.objects.all()})
+    products = Product.objects.all()
+    return render(request, "inventory/product_list.html", {"products": products})
 
 
 def product_create(request):
     form = ProductForm(request.POST or None)
-    if form.is_valid():
+    if request.method == "POST" and form.is_valid():
         form.save()
         return redirect(reverse("inventory:product_list"))
     return render(request, "inventory/product_form.html", {"form": form, "title": "Add Product"})
@@ -95,7 +115,7 @@ def product_create(request):
 def product_update(request, pk):
     product = get_object_or_404(Product, pk=pk)
     form = ProductForm(request.POST or None, instance=product)
-    if form.is_valid():
+    if request.method == "POST" and form.is_valid():
         form.save()
         return redirect(reverse("inventory:product_list"))
     return render(request, "inventory/product_form.html", {"form": form, "title": "Edit Product"})
@@ -106,23 +126,25 @@ def product_delete(request, pk):
     if request.method == "POST":
         product.delete()
         return redirect(reverse("inventory:product_list"))
-    return render(request, "inventory/product_confirm_delete.html", {"product": product})
+    return render(request, "inventory/product_confirm_delete.html", {"product": product, "title": "Delete Product"})
 
 
 def purchase_list(request):
-    return render(request, "inventory/purchase_list.html", {"purchases": Purchase.objects.all()})
+    purchases = Purchase.objects.all()
+    return render(request, "inventory/purchase_list.html", {"purchases": purchases})
 
 
 def purchase_create(request):
     form = PurchaseForm(request.POST or None)
-    if form.is_valid():
+    if request.method == "POST" and form.is_valid():
         form.save()
         return redirect(reverse("inventory:purchase_list"))
     return render(request, "inventory/purchase_form.html", {"form": form, "title": "Add Purchase"})
 
 
 def bill_list(request):
-    return render(request, "inventory/bill_list.html", {"bills": Bill.objects.select_related("customer", "product").all()})
+    bills = Bill.objects.select_related("customer", "product").all()
+    return render(request, "inventory/bill_list.html", {"bills": bills})
 
 
 def bill_create(request):
@@ -149,42 +171,70 @@ def bill_create(request):
 
 def bill_invoice(request, pk):
     bill = get_object_or_404(Bill, pk=pk)
-    # prepare simple dicts for the invoice helper
-    bill_dict = {
-        "Bill_ID": bill.id,
-        "Date": bill.date.strftime("%d-%m-%Y") if hasattr(bill, "date") else str(bill.date),
-        "Quantity": float(bill.quantity),
-        "Rate": float(bill.rate),
-    }
-    customer_dict = {
-        "Name": bill.customer.name,
-        "Location": bill.customer.location,
-        "Phone_No": bill.customer.phone_no,
-        "GST": bill.customer.gst,
-    }
-    product_dict = {"Name": bill.product.name}
-
-    invoice_text = build_invoice_text(bill_dict, customer_dict, product_dict, float(bill.amount_due))
-
     return render(
         request,
         "inventory/invoice.html",
         {
             "bill": bill,
             "amount_in_words": number_to_words(float(bill.total_amount)),
-            "invoice_text": invoice_text,
         },
     )
 
 
 def payment_list(request):
-    return render(request, "inventory/payment_list.html", {"payments": Payment.objects.select_related("bill").all()})
+    payments = Payment.objects.select_related("bill", "bill__customer").all()
+    return render(request, "inventory/payment_list.html", {"payments": payments})
 
 
 def payment_create(request):
     form = PaymentForm(request.POST or None)
-    if form.is_valid():
-        payment = form.save(commit=False)
-        payment.save()
+    if request.method == "POST" and form.is_valid():
+        form.save()
         return redirect(reverse("inventory:payment_list"))
     return render(request, "inventory/payment_form.html", {"form": form, "title": "Record Payment"})
+
+
+def bill_invoice(request, pk):
+    return bill_invoice_pdf(request, pk)
+
+
+def bill_invoice_pdf(request, pk):
+    bill = get_object_or_404(Bill, pk=pk)
+    base_dir = Path(__file__).resolve().parent.parent
+    output_dir = base_dir / "invoice_generator" / "output"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / f"invoice_{bill.pk}.pdf"
+
+    seller_config_path = base_dir / "invoice_generator" / "seller_config.json"
+    invoice_data = {
+        "invoice_no": str(bill.pk),
+        "date": bill.date.strftime("%d-%m-%Y"),
+        "vehicle_no": "",
+        "place_of_supply": bill.customer.location or "N/A",
+        "bill_type": "CASH",
+        "currency": "INR",
+        "buyer": {
+            "name": bill.customer.name,
+            "address_lines": [line for line in [bill.customer.location] if line],
+            "phone": bill.customer.phone_no or "",
+            "state_name": "",
+            "state_code": "",
+            "gstin": bill.customer.gst or "",
+        },
+        "items": [
+            {
+                "description": bill.product.name,
+                "hsn_code": "",
+                "qty": float(bill.quantity),
+                "unit": "KG",
+                "rate": float(bill.rate),
+            }
+        ],
+    }
+
+    generator = InvoiceGenerator(str(seller_config_path))
+    generator.generate(invoice_data, str(output_path))
+
+    response = HttpResponse(output_path.read_bytes(), content_type="application/pdf")
+    response["Content-Disposition"] = f'inline; filename="invoice_{bill.pk}.pdf"'
+    return response

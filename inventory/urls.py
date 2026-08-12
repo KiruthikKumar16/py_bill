@@ -1,4 +1,4 @@
-from django.urls import path
+﻿from django.urls import path
 
 from . import views
 
@@ -19,6 +19,7 @@ urlpatterns = [
     path("bills/", views.bill_list, name="bill_list"),
     path("bills/add/", views.bill_create, name="bill_create"),
     path("bills/<int:pk>/invoice/", views.bill_invoice, name="bill_invoice"),
+    path("bills/<int:pk>/pdf/", views.bill_invoice_pdf, name="bill_invoice_pdf"),
     path("payments/", views.payment_list, name="payment_list"),
     path("payments/add/", views.payment_create, name="payment_create"),
 ]

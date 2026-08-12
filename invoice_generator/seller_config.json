@@ -1,0 +1,16 @@
+{
+  "name": "VINOTH TRADERS",
+  "address_lines": ["5D, Bolden Puram,", "2nd Street,", "Tuticorin."],
+  "phone": "04612320926",
+  "cell": "9842130011",
+  "gstin": "BZSPS5243K1ZQ",
+  "state_name": "Tamil Nadu",
+  "state_code": "33",
+  "email": "vinothtraders@gmail.com",
+  "bank": {
+    "acc_no": "",
+    "ifsc": ""
+  },
+  "logo_path": null,
+  "symbol_path": null
+}
