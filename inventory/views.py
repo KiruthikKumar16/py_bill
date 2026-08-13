@@ -10,6 +10,7 @@ from django.urls import reverse
 from .forms import BillForm, CustomerForm, PaymentForm, ProductForm, PurchaseForm
 from .models import Bill, Customer, Payment, Product, Purchase
 from invoice import number_to_words
+from invoice_generator.invoice_generator import InvoiceGenerator
 
 
 def dashboard(request):
